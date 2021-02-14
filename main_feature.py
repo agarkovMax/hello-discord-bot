@@ -3,17 +3,14 @@ import os
 import requests
 import json
 import random
-import time
-import schedule
 from replit import db
 from keep_alive import keep_alive
 
 client = discord.Client()
 
-#no_negative = os.getenv('no_negative')
-no_negative = ['лох','пидр','пидор','хуйло','ебанат','жид','ниггер','дебил','шлюха','пидарасина','чмо']
+triger = []
 
-starter_judges = ['Осуждаю!', 'Не одобряю!', 'Завали свое токсичное ебало!', 'Ты!']
+response = []
 
 if "responding" not in db.keys():
   db["responding"] = True
@@ -23,7 +20,6 @@ def get_quote():
   json_data = json.loads(response.text)
   quote = json_data[0]['q'] + " -" + json_data[0]['a']
   return(quote)
-
 
 def update_neg(neg_word):
   if "negative" in db.keys():
@@ -64,17 +60,13 @@ async def on_message(message):
 
   msg = message.content.lower()
   
-  if msg.startswith('привет'):
-    author = str(message.author)[:-5]
-    await message.channel.send('Привет, ' + author + "!")
+  if msg.startswith('$hello'):
+    await message.channel.send('Hello! :)')
 
-  if msg.startswith('hello'):
-    author = str(message.author)[:-5]
-    await message.channel.send('Hello, ' + author + "!")
-
-  if msg.startswith('цитата'):
+  if msg.startswith('$inspire'):
     quote = get_quote()
     await message.channel.send(quote)
+
 
   if db["responding"]:
     options = starter_judges
@@ -84,7 +76,6 @@ async def on_message(message):
     if any(word in msg for word in no_negative):
       await message.channel.send(random.choice(options))
 
-  '''
   if msg.startswith("$add_neg"):
     neg_word = msg.split("$add_neg ",1)[1]
     update_neg(neg_word)
@@ -97,7 +88,7 @@ async def on_message(message):
       delete_negative(index)
       negative = db["negative"]
     await message.channel.send(negative)
-  '''
+
 
   if msg.startswith("$new"):
     judging_message = msg.split("$new ",1)[1]
@@ -124,8 +115,6 @@ async def on_message(message):
       negative = db["negative"]
     await message.channel.send(negative)
 
-
-# turn on and off responding
   if msg.startswith("$responding"):
     value = msg.split("$responding ",1)[1]
 
