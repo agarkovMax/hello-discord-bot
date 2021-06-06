@@ -2,18 +2,12 @@ import discord
 import os
 import requests
 import json
-import random
-import time
-import schedule
 from replit import db
 from keep_alive import keep_alive
 
+
 client = discord.Client()
 
-#no_negative = os.getenv('no_negative')
-no_negative = ['лох','пидр','пидор','хуйло','ебанат','жид','ниггер','дебил','шлюха','пидарасина','чмо']
-
-starter_judges = ['Осуждаю!', 'Не одобряю!', 'Завали свое токсичное ебало!', 'Ты!']
 
 if "responding" not in db.keys():
   db["responding"] = True
@@ -24,34 +18,12 @@ def get_quote():
   quote = json_data[0]['q'] + " -" + json_data[0]['a']
   return(quote)
 
+def get_cat():
+  response = requests.get('https://api.thecatapi.com/v1/images/search')
+  response = response.json()
+  image = response[0]['url']
+  return(image)
 
-def update_neg(neg_word):
-  if "negative" in db.keys():
-    negative = db["negative"]
-    negative.append(negative)
-    db["negative"] = negative
-  else:
-    db["negative"] = [neg_word]
-
-def delete_negative(index):
-  negative = db["negative"]
-  if len(negative) > index:
-    del negative[index]
-  db["negative"] = negative  
-
-def update_judges(judging_message):
-  if "judges" in db.keys():
-    judges = db["judges"]
-    judges.append(judging_message)
-    db["judges"] = judges
-  else:
-    db["judges"] = [judging_message]
-
-def delete_judge(index):
-  judges = db["judges"]
-  if len(judges) > index:
-    del judges[index]
-    db["judges"] = judges
 
 @client.event
 async def on_ready():
@@ -76,53 +48,13 @@ async def on_message(message):
     quote = get_quote()
     await message.channel.send(quote)
 
-  if db["responding"]:
-    options = starter_judges
-    if "judges" in db.keys():
-      options = options + db["judges"] 
+  if msg.startswith('cat'):
+    cat = get_cat()
+    await message.channel.send(cat)
 
-    if any(word in msg for word in no_negative):
-      await message.channel.send(random.choice(options))
-
-  '''
-  if msg.startswith("$add_neg"):
-    neg_word = msg.split("$add_neg ",1)[1]
-    update_neg(neg_word)
-    await message.channel.send("New negative word added.")
-
-  if msg.startswith('$remove_neg'):
-    negative = []
-    if "negative" in db.keys():
-      index = int(msg.split("$remove_neg",1)[1])
-      delete_negative(index)
-      negative = db["negative"]
-    await message.channel.send(negative)
-  '''
-
-  if msg.startswith("$new"):
-    judging_message = msg.split("$new ",1)[1]
-    update_judges(judging_message)
-    await message.channel.send("New judge added.")
-  
-  if msg.startswith("$del"):
-    judges = []
-    if "judges" in db.keys():
-      index = int(msg.split("$del", 1)[1])
-      delete_judge(index)
-      judges = db["judges"]
-      await message.channel.send(judges)
-
-  if msg.startswith("$list"):
-    judges = []
-    if "judges" in db.keys():
-      judges = db["judges"]
-    await message.channel.send(judges)
-    
-  if msg.startswith("$l_neg"):
-    negatives = []
-    if "negative" in db.keys():
-      negative = db["negative"]
-    await message.channel.send(negative)
+  if msg.startswith('кот'):
+    cat = get_cat()
+    await message.channel.send(cat)
 
 
 # turn on and off responding
