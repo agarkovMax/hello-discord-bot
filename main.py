@@ -4,11 +4,14 @@ import requests
 import json
 from replit import db
 from keep_alive import keep_alive
+from discord.ext import  tasks, commands
 
 
 client = discord.Client()
 
-
+def get_shlepa():
+  shlepa = 'https://memepedia.ru/wp-content/uploads/2020/10/screenshot_10-3.png'
+  return shlepa
 if "responding" not in db.keys():
   db["responding"] = True
 
@@ -28,6 +31,9 @@ def get_cat():
 @client.event
 async def on_ready():
   print('We have logged in as {0.user}'.format(client))
+
+
+
 
 @client.event
 async def on_message(message): 
@@ -56,6 +62,13 @@ async def on_message(message):
     cat = get_cat()
     await message.channel.send(cat)
 
+  if msg.startswith('большой русский кот'):
+    shlepa = get_shlepa()
+    await message.channel.send(shlepa)
+
+  if msg.startswith('шлёпа'):
+    shlepa = get_shlepa()
+    await message.channel.send(shlepa)
 
 # turn on and off responding
   if msg.startswith("$responding"):
@@ -68,7 +81,22 @@ async def on_message(message):
       db["responding"] = False
       await message.channel.send("Responding is off.")
  
+
+class MyCog(commands.Cog):
+  @tasks.loop(seconds=300)
+
+  async def send_quote():
+    channel = client.get_channel(788712072086028338)
+    quote = get_quote()
+    print(quote)
+    await channel.send(quote)
+    
+  send_quote.start()
  
+
+
+
+
 keep_alive()
 
 client.run(os.getenv('TOKEN'))
